@@ -84,9 +84,8 @@ ai-it-helpdesk-agent/
 ├── app.py                  # Streamlit dashboard UI & HITL interface
 ├── requirements.txt        # Python dependency specifications
 ├── README.md               # Documentation & architecture guide
-├── test_helpdesk.py        # Verification test suite covering all 5 demo scenarios
 ├── .gitignore              # Data and cache ignores
-├── src/
+├── src/                    # Core AI Helpdesk implementation package
 │   ├── __init__.py         # Package init
 │   ├── config.py           # Ollama health check & host settings
 │   ├── database.py         # SQLite connection & CRUD operations
@@ -104,6 +103,10 @@ ai-it-helpdesk-agent/
 │   ├── vpn.txt
 │   ├── email.txt
 │   └── slow_laptop.txt
+├── tests/                  # Verification & test suite
+│   ├── test_helpdesk.py               # Core 6-step test suite
+│   ├── full_checklist_verification.py # Complete 23-point verification
+│   └── run_and_check_all_features.py  # 31-feature capability suite
 └── data/
     └── .gitkeep            # Storage directory for helpdesk.db and ChromaDB
 ```
