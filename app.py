@@ -347,6 +347,23 @@ with st.sidebar:
     with col_b:
         st.markdown(f'<div class="metric-box"><div class="val">{stats["CLOSED"]}</div><div class="lbl">Closed Tickets</div></div>', unsafe_allow_html=True)
 
+    # Interactive Open Ticket Management Section
+    st.markdown("---")
+    st.subheader("Ticket Admin")
+    from src.database import get_all_tickets, close_ticket as db_close_ticket
+    with st.expander("📋 View & Close Open Tickets", expanded=False):
+        open_tkts = get_all_tickets(status="OPEN")
+        if not open_tkts:
+            st.caption("🟢 No open tickets in database.")
+        else:
+            for ot in open_tkts:
+                st.markdown(f"**ID:** `{ot['ticket_id']}` | Priority: `{ot['priority']}`\n\n**User:** {ot['user_name']}\n\n**Issue:** {ot['issue']}")
+                if st.button(f"✅ Close Ticket {ot['ticket_id']}", key=f"ui_close_{ot['ticket_id']}", use_container_width=True):
+                    db_close_ticket(ot['ticket_id'])
+                    st.toast(f"Ticket {ot['ticket_id']} successfully CLOSED!")
+                    st.rerun()
+                st.markdown("---")
+
 # ----------------- MAIN UI -----------------
 st.markdown("""
 <div class="main-header">

@@ -97,6 +97,37 @@ def get_ticket(ticket_id: str) -> dict:
         print(f"[DB Error] Failed to get ticket: {e}")
         return None
 
+def get_all_tickets(status: str = None) -> list:
+    """Retrieves all tickets, optionally filtered by status ('OPEN' or 'CLOSED')."""
+    init_db()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        if status:
+            cursor.execute("SELECT * FROM tickets WHERE status = ? ORDER BY id DESC", (status.upper(),))
+        else:
+            cursor.execute("SELECT * FROM tickets ORDER BY id DESC")
+        rows = cursor.fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+    except Exception as e:
+        print(f"[DB Error] Failed to get tickets: {e}")
+        return []
+
+def close_ticket(ticket_id: str) -> bool:
+    """Updates status of a ticket to CLOSED."""
+    init_db()
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE tickets SET status = 'CLOSED' WHERE ticket_id = ?", (ticket_id.strip().upper(),))
+        conn.commit()
+        conn.close()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print(f"[DB Error] Failed to close ticket: {e}")
+        return False
+
 def get_ticket_stats() -> dict:
     """Returns total open and closed ticket counts."""
     init_db()

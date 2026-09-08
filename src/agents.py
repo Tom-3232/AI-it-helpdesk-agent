@@ -126,17 +126,39 @@ def run_ticket_agent_node(state: dict) -> dict:
     messages = state.get("messages", [])
     query = messages[-1].get("content", "") if messages else ""
     user_name = state.get("user_name", "User")
+    query_lower = query.lower()
     
-    # Check if this is a ticket lookup
+    # 1. List all open tickets
+    if any(k in query_lower for k in ["list tickets", "all tickets", "show tickets", "view tickets", "open tickets"]):
+        from src.tools import list_open_tickets
+        state["response"] = list_open_tickets()
+        state["pending_ticket"] = None
+        return state
+
+    # 2. Close a ticket
+    if any(k in query_lower for k in ["close ticket", "resolve ticket", "mark closed", "close "]):
+        tkt_match = re.search(r"TKT-2026-\d{5}", query, re.IGNORECASE)
+        if tkt_match:
+            tkt_id = tkt_match.group(0).upper()
+            from src.tools import close_ticket
+            state["response"] = close_ticket(tkt_id)
+            state["pending_ticket"] = None
+            return state
+        else:
+            state["response"] = "Please specify the Ticket ID to close (e.g. `Close ticket TKT-2026-12345`)."
+            state["pending_ticket"] = None
+            return state
+
+    # 3. Check specific ticket status
     tkt_match = re.search(r"TKT-2026-\d{5}", query, re.IGNORECASE)
-    if tkt_match or "check" in query.lower() or "status" in query.lower():
+    if tkt_match or "check" in query_lower or "status" in query_lower:
         if tkt_match:
             tkt_id = tkt_match.group(0).upper()
             status_info = check_ticket_status(tkt_id)
             state["response"] = status_info
             state["pending_ticket"] = None
             return state
-        elif "status" in query.lower() and not ("create" in query.lower() or "open" in query.lower()):
+        elif "status" in query_lower and not ("create" in query_lower or "open" in query_lower):
             state["response"] = "Please provide your Ticket ID (e.g., TKT-2026-12345) to check its current status."
             state["pending_ticket"] = None
             return state
