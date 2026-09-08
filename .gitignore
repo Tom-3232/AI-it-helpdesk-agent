@@ -12,3 +12,4 @@ data/*.db
 data/chroma_db/
 .env
 full_checklist_verification.py
+.reentry/
